@@ -6,7 +6,7 @@ import utils.logger as log
 
 ROOT = ''  # ${ROOT_PATH} for production mode
 
-TOKEN = open(ROOT + 'sens_data/token', 'r').read()
+TOKEN = open(ROOT + 'sens_data/token', 'r').read()[:-1]
 
 bot = telebot.TeleBot(TOKEN)
 
