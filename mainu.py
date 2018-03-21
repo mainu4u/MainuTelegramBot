@@ -2,6 +2,7 @@
 import telebot
 import logging
 import requests
+import sys
 import utils.logger as log
 
 ROOT = ''  # ${ROOT_PATH} for production mode
@@ -25,7 +26,7 @@ def listener(msgs):
                                                   m.text))
         else:
             logger.info("%s (%d) ha enviado algo que no es texto." %
-                        ( m.chat.first_name, m.chat.id))
+                        (m.chat.first_name, m.chat.id))
 
 
 bot.set_update_listener(listener)
@@ -50,16 +51,17 @@ def menu(m):
     id = m.chat.id
     r = requests.get("https://api.mainu.eus/menu")
     m = r.json()
-    bot.send_message(id, "Primeros:\n" +
+    bot.send_message(id, "*Primeros:*\n" +
                          "%s\n" % (m['primeros'][0]['nombre']) +
                          "%s\n" % (m['primeros'][1]['nombre']) +
                          "%s\n\n" % (m['primeros'][2]['nombre']) +
-                         "Segundos:\n" +
+                         "*Segundos:*\n" +
                          "%s\n" % (m['segundos'][0]['nombre']) +
                          "%s\n" % (m['segundos'][1]['nombre']) +
                          "%s\n\n" % (m['segundos'][2]['nombre']) +
-                         "Postre:\n" +
-                         "%s" % (m['postre'][0]['nombre']))
+                         "*Postre:*\n" +
+                         "%s" % (m['postre'][0]['nombre']),
+                         parse_mode="markdown")
 
 
 @bot.message_handler(content_types=['text'])
@@ -69,4 +71,8 @@ def text(m):
     bot.send_message(id, "Si necesitas ayuda, escribe /help.")
 
 
-bot.polling(True)
+try:
+    bot.polling(True)
+except Exception:
+    logger.exception("Ha ocurrido una excepción")
+    sys.exit(1)
