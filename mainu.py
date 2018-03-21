@@ -40,9 +40,14 @@ bot.set_update_listener(listener)
 def welcome(m):
     logger.info("Devuelve el saludo")
     id = m.chat.id
-    bot.send_message(id, "¡Hola! Soy el bot de MainU. Mira lo que " +
-                         "puedo hacer:\n\n" +
-                         "/menu: te diré qué tenemos de menú.")
+    bot.send_message(id, "\U0001F44B ¡Hola! Soy el bot de MainU. Utilizo la "
+                         "API pública de mainu.eus para ofrecerte servicios "
+                         "relacionados con la cafetería de la Escuela de "
+                         "Ingeniería de Bilbao. Estos son mis comandos:\n\n"
+                         "/menu \U0001F449 Te diré qué tenemos de menú."
+                         "/bocadillos \U0001F449 Te pasaré una lista de todos "
+                         "los bocadillos con sus precios (prepárate, porque "
+                         "es larga)")
 
 
 @bot.message_handler(commands=['menu'])
@@ -51,17 +56,30 @@ def menu(m):
     id = m.chat.id
     r = requests.get("https://api.mainu.eus/menu")
     m = r.json()
-    bot.send_message(id, "*Primeros:*\n" +
-                         "%s\n" % (m['primeros'][0]['nombre']) +
-                         "%s\n" % (m['primeros'][1]['nombre']) +
-                         "%s\n\n" % (m['primeros'][2]['nombre']) +
-                         "*Segundos:*\n" +
-                         "%s\n" % (m['segundos'][0]['nombre']) +
-                         "%s\n" % (m['segundos'][1]['nombre']) +
-                         "%s\n\n" % (m['segundos'][2]['nombre']) +
-                         "*Postre:*\n" +
-                         "%s" % (m['postre'][0]['nombre']),
+    bot.send_message(id, "\U0001F35D *Primeros:*\n" +
+                         "- %s\n" % (m['primeros'][0]['nombre']) +
+                         "- %s\n" % (m['primeros'][1]['nombre']) +
+                         "- %s\n\n" % (m['primeros'][2]['nombre']) +
+                         "\U0001F357 *Segundos:*\n" +
+                         "- %s\n" % (m['segundos'][0]['nombre']) +
+                         "- %s\n" % (m['segundos'][1]['nombre']) +
+                         "- %s\n\n" % (m['segundos'][2]['nombre']) +
+                         "\U0001F370 *Postre:*\n" +
+                         "- %s" % (m['postre'][0]['nombre']),
                          parse_mode="markdown")
+
+
+@bot.message_handler(commands=['bocadillos'])
+def bocadillos(m):
+    logger.info("Devuelve una lista de bocadillos")
+    id = m.chat.id
+    r = requests.get("https://api.mainu.eus/bocadillos")
+    bocs = r.json()
+    bocadillos = ""
+    for b in bocs:
+        bocadillos = (bocadillos + '*' + b['nombre'] + '*: ' +
+                      str(b['precio']) + ' €\n')
+    bot.send_message(id, bocadillos[:-1], parse_mode="markdown")
 
 
 @bot.message_handler(content_types=['text'])
@@ -71,8 +89,4 @@ def text(m):
     bot.send_message(id, "Si necesitas ayuda, escribe /help.")
 
 
-try:
-    bot.polling(True)
-except Exception:
-    logger.exception("Ha ocurrido una excepción")
-    sys.exit(1)
+bot.polling(True)
