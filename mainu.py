@@ -2,7 +2,6 @@
 import telebot
 import logging
 import requests
-import sys
 import utils.logger as log
 
 ROOT = ''  # ${ROOT_PATH} for production mode
